@@ -1,7 +1,8 @@
 
 basic:
 	ansible-playbook \
-		-i inventory/topology/non-kube-1/ \
+		-i inventory/basic \
+		-i inventory/topology/system-1/ \
 		-v \
 		$(OPTIONS) \
 		test.yaml
