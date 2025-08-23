@@ -1,0 +1,11 @@
+---
+
+- name: Remove podman sites
+  hosts: podman,docker,systemd
+  tasks:
+  - name: Remove the namespaces
+    skupper.v2.system:
+      namespace: "{{ inventory_hostname }}"
+      platform: "{{ skupper_platform }}"
+      action: teardown
+    register: teardown_results

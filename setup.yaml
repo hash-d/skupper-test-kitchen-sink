@@ -1,0 +1,45 @@
+---
+
+- name: Setup sites
+  hosts: docker,podman,systemd
+  roles:
+  - name: setup_system_site
+
+- name: Setup kube sites
+  hosts: kube
+  tasks:
+  - debug:
+      msg: Hi
+
+- name: Connect sites
+  hosts: all
+  tasks:
+  - name: Create the link resource
+    skupper.v2.resource:
+      namespace: "{{ inventory_hostname }}"
+      platform: "{{ skupper_platform }}"
+      def: "{{ hostvars[item].system_results.links['0.0.0.0'] }}"
+    loop: "{{ skupper_links | default ([]) }}"
+    notify:
+    - Reload site
+  handlers:
+  - name: Reload site
+    skupper.v2.system:
+      action: reload
+      namespace: "{{ inventory_hostname }}"
+      platform: "{{ skupper_platform }}"
+
+  - debug:
+      msg: Connect.  Perhaps will need one per systemd/podman/docker/kube; or at least kube/non-kube, due to differences on how they behave
+
+- name: Deploy workloads
+  hosts: all
+  tasks:
+  - debug:
+      msg: Deploy
+
+- name: Expose services
+  hosts: all
+  tasks:
+  - debug:
+      msg: Expose

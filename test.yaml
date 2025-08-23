@@ -1,0 +1,10 @@
+---
+
+- import_playbook: setup.yaml
+
+- name: Pause for verification
+  hosts: localhost
+  tasks:
+  - ansible.builtin.pause:
+
+- import_playbook: teardown.yaml

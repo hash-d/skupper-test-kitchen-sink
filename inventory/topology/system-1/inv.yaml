@@ -1,0 +1,11 @@
+---
+
+podman:
+  hosts:
+    hub-1:
+docker:
+  hosts:
+    backend-1:
+systemd:
+  hosts:
+    frontend-1:
