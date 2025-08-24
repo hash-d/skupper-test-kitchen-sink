@@ -16,3 +16,6 @@ backends:
 frontends:
   hosts:
     system-frontend-1:
+hubs:
+  hosts:
+    system-hub-1:

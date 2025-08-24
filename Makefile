@@ -9,6 +9,16 @@ basic:
 		$(OPTIONS) \
 		test.yaml
 
+teardown:
+	ansible-playbook \
+		-i inventory/basic \
+		-i inventory/topology/system-1/ \
+		-i inventory/apps/hello/ \
+		-i inventory/local/ \
+		-v \
+		$(OPTIONS) \
+		teardown.yaml
+
 .PHONY: inventory
 inventory:
 	ansible-inventory \

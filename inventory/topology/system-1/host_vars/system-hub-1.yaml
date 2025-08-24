@@ -10,8 +10,8 @@ site_resources:
     name: access-1
   spec:
     roles:
-      - port: 9090
+      - port: 55671
         name: inter-router
-      - port: 8080
+      - port: 45671
         name: edge
-    bindHost: 0.0.0.0
+    bindHost: "{{ ansible_host }}"

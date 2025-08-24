@@ -1,0 +1,17 @@
+---
+
+- name: Verify
+  hosts: all
+  tasks:
+  - name: Check URI
+    ansible.builtin.uri:
+      url: "{{ item.url }}"
+      return_content: true
+    loop: "{{ application_url_checks | default ([]) }}"
+    register: uri_check_result
+    until: uri_check_result is success
+    retries: 3
+    delay: 6
+  - name: Show response
+    ansible.builtin.debug:
+      var: uri_check_result

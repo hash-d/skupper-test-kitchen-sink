@@ -14,4 +14,4 @@ site_resources:
         name: inter-router
       - port: 45671
         name: edge
-    bindHost: 0.0.0.0
+    bindHost: "{{ ansible_host }}"
