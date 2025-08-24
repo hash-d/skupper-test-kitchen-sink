@@ -26,17 +26,24 @@
   - name: Reload site
     skupper.v2.system:
       action: reload
+      image: "{{ cli_image }}"
       namespace: "{{ inventory_hostname }}"
       platform: "{{ skupper_platform }}"
+    environment:
+      SKUPPER_ROUTER_IMAGE: "{{ router_image }}"
 
   - debug:
       msg: Connect.  Perhaps will need one per systemd/podman/docker/kube; or at least kube/non-kube, due to differences on how they behave
 
-- name: Deploy workloads
-  hosts: all
-  tasks:
-  - debug:
-      msg: Deploy
+- name: Deploy docker workloads
+  hosts: docker
+  roles:
+  - name: run_docker_workload
+
+- name: Deploy podman workloads -- systemd and podman sites
+  hosts: systemd,podman
+  roles:
+  - name: run_podman_workload
 
 - name: Expose services
   hosts: all

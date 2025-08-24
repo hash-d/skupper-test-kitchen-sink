@@ -1,0 +1,7 @@
+---
+
+- name: Stop workload on Docker
+  community.docker.docker_container:
+    name: "{{ item.name }}"
+    state: absent
+  loop: "{{ container_workloads | default ([]) }}"

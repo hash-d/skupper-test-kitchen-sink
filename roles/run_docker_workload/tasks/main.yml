@@ -1,0 +1,11 @@
+---
+
+- name: Run workload on Docker
+  community.docker.docker_container:
+    entrypoint: "{{ item.command | default (omit) }}"
+    command: "{{ item.cmd_args | default (omit) }}"
+    image: "{{ item.image }}"
+    name: "{{ item.name }}"
+    auto_remove: true
+    published_ports: "{{ item.expose }}"
+  loop: "{{ container_workloads | default ([]) }}"

@@ -1,0 +1,17 @@
+---
+
+container_workloads:
+- name: hello-world-backend
+  image: quay.io/skupper/hello-world-backend # TODO externalize
+  expose: "8081:8080"
+
+application_resources:
+- apiVersion: skupper.io/v2alpha1
+  kind: Connector
+  metadata:
+    name: backend
+    namespace: "{{ inventory_hostname }}"
+  spec:
+    routingKey: backend
+    port: 8081
+    host: localhost

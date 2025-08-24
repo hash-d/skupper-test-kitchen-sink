@@ -1,0 +1,7 @@
+---
+
+- name: Stop workload on Podman
+  containers.podman.podman_container:
+    name: "{{ item.name }}"
+    state: absent
+  loop: "{{ container_workloads | default ([]) }}"

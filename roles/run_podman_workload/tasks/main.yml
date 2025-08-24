@@ -1,0 +1,11 @@
+---
+
+- name: Run workload on Podman
+  containers.podman.podman_container:
+    command: "{{ item.command | default (omit) }}"
+    cmd_args: "{{ item.cmd_args | default (omit) }}"
+    image: "{{ item.image }}"
+    name: "{{ item.name }}"
+    rm: true
+    publish: "{{ item.expose }}"
+  loop: "{{ container_workloads | default ([]) }}"

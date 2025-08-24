@@ -2,10 +2,17 @@
 
 podman:
   hosts:
-    hub-1:
+    system-frontend-1:
 docker:
   hosts:
-    backend-1:
+    system-backend-1:
 systemd:
   hosts:
-    frontend-1:
+    system-hub-1:
+
+backends:
+  hosts:
+    system-backend-1:
+frontends:
+  hosts:
+    system-frontend-1:

@@ -1,2 +1,3 @@
 
-/inventory/local/
+inventory/local/*
+!inventory/local/README.md
