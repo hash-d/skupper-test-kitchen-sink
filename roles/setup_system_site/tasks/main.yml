@@ -37,7 +37,7 @@
     image: "{{ cli_image }}"
   register: system_results
   environment:
-    SKUPPER_ROUTER_IMAGE: "{{ router_image }}"
+    SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
 
 - name: Show results
   ansible.builtin.debug:

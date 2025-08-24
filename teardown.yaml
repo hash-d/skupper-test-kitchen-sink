@@ -11,7 +11,7 @@
       action: stop
     register: teardown_results
     environment:
-      SKUPPER_ROUTER_IMAGE: "{{ router_image }}"
+      SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
 
 - name: Remove workloads on Docker
   hosts: docker
