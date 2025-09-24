@@ -25,7 +25,9 @@
 #   allow the user to have several prepared local inventories and select one of them
 
 RANDOM != echo $$RANDOM | sha1sum | cut -c -5
-TEST_ID ?= $(RANDOM)
+# if ansible gets something like 123e10, it thinks it's a number in scientific
+# format and goes haywire; that's whey the ks- prefix is required, here
+TEST_ID ?= ks-$(RANDOM)
 
 system-1:
 	ansible-playbook \
