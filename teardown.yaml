@@ -1,7 +1,28 @@
 ---
 
+# We start by saving on `reached_end` the list of hosts that did not fail
+# (actually, due to the way Ansible works, that variable will be set only
+# on those who did not fail and reached thus far).
+#
+# Then, we run the teardown tasks, ignoring any failures (we want to report
+# failures on tests, not on teardown).
+#
+# Finally, we fail the whole playbook if any hosts had previously failed
+# (with `clear_host_errors`, the hosts would be only listed as failed, but
+# the whole playbook would list as successful).
+
+- name: Clear errors for cleanup
+  hosts: all
+  tasks:
+  - name: Set as successful
+    ansible.builtin.set_fact:
+      reached_end: true
+  - name: Clear errors
+    ansible.builtin.meta: clear_host_errors
+
 - name: Remove podman sites
   hosts: podman,docker,systemd
+  ignore_errors: true
   tasks:
   - name: Remove the namespaces
     skupper.v2.system:
@@ -15,6 +36,7 @@
 
 - name: Remove Kube namespaces
   hosts: kube
+  ignore_errors: true
   tasks:
   - name: Remove Kube namespaces
     kubernetes.core.k8s:
@@ -28,10 +50,21 @@
 
 - name: Remove workloads on Docker
   hosts: docker
+  ignore_errors: true
   roles:
   - rm_docker_workload
 
 - name: Remove workloads on Podman
   hosts: podman,systemd
+  ignore_errors: true
   roles:
   - rm_podman_workload
+
+- name: Fail playbook if any hosts failed previously
+  hosts: all
+  gather_facts: no
+  tasks:
+  - name: Re-state host failure
+    ansible.builtin.fail:
+      msg: Host had previous failures
+    when: not ( reached_end | default (false) )
