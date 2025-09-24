@@ -41,6 +41,30 @@
         metadata:
           labels:
             skupper.io/label-template: "true"
-            sk.id: "{{ test_id }}"
-            sk.name: "{{ test_name }}"
+            ks.id: "{{ test_id }}"
+            ks.name: "{{ test_name }}"
         data: {}
+  - name: Deploy lanyard pod
+    vars:
+      labels:
+        app: lanyard
+        ks.id: "{{ test_id }}"
+        ks.name: "{{ test_name }}"
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      kind: Pod
+      api_version: v1
+      name: lanyard
+      namespace: "{{ inventory_namespace }}"
+      state: present
+      definition:
+        metadata:
+          labels: "{{ labels }}"
+        spec:
+          containers:
+          - image: quay.io/skupper/lanyard
+            name: lanyard
+            args:
+            - tail
+            - -f
+            - /dev/null

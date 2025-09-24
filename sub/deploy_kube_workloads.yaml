@@ -9,6 +9,11 @@
   gather_facts: no
   tasks:
   - name: Create Kube workloads
+    vars:
+      labels:
+        app: "{{ item.kube_app | default (item.name) }}"
+        ks.id: "{{ test_id }}"
+        ks.test: "{{ test_name }}"
     kubernetes.core.k8s:
       kubeconfig: "{{ kubeconfig | default (omit) }}"
       kind: Deployment
@@ -19,23 +24,17 @@
       definition:
         spec:
           # TODO: this is not working; investigate
-          #replicas: "{{ item.kube_replicas | default (1) | int }}"
+          replicas: "{{ item.kube_replicas | default (1) | int }}"
           selector:
             matchLabels:
-              app: "{{ item.name }}"
+              app: "{{ labels.app }}"
           template:
             metadata:
-              labels:
-                app: "{{ item.name }}"
-                ks.id: "{{ test_id }}"
-                ks.test: "{{ test_name }}"
+              labels: "{{ labels }}"
             spec:
               containers:
               - image: "{{ item.image }}"
                 name: "{{ item.name }}"
         metadata:
-          labels:
-            app: "{{ item.name }}"
-            ks.id: "{{ test_id }}"
-            ks.test: "{{ test_name }}"
+          labels: "{{ labels }}"
     loop: "{{ container_workloads }}"

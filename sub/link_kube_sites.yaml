@@ -13,9 +13,6 @@
     register: token
     loop: "{{ skupper_links | default ([]) }}"
 
-  - debug:
-      var: token.results
-
   - name: Apply token
     skupper.v2.resource:
       kubeconfig: "{{ kubeconfig | default (omit) }}"

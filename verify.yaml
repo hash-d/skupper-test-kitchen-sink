@@ -1,7 +1,8 @@
 ---
 
-- name: Verify
+- name: Verify on systems
   hosts: docker,podman,systemd
+  gather_facts: no
   tasks:
   - name: Check URI
     ansible.builtin.uri:
@@ -15,3 +16,18 @@
   - name: Show response
     ansible.builtin.debug:
       var: uri_check_result
+- name: Verify on Kube
+  hosts: kube
+  gather_facts: no
+  tasks:
+  - name: Check URI
+    kubernetes.core.k8s_exec:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      namespace: "{{ inventory_namespace }}"
+      command: "curl -v {{ item.url }}"
+      pod: lanyard
+    loop: "{{ application_url_checks | default ([]) }}"
+    register: uri_check_result
+    until: uri_check_result is success
+    retries: 10
+    delay: 6

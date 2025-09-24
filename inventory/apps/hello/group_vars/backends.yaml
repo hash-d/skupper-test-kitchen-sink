@@ -1,10 +1,28 @@
 ---
 
+# When running workloads on Podman or Docker, we may need to
+# set them to different ports, to avoid port clashes.
+#
+# On Kube, however, the ports open on 0.0.0.0 are the ones
+# that can be accessed, and there is no port routing.
+#
+# So, when setting the Connector port, we need to pick one
+# or the other.
+backend_container_port: 8080
+backend_host_port: 8081
+
 container_workloads:
 - name: hello-world-backend
   image: quay.io/skupper/hello-world-backend # TODO externalize
-  expose: "8081:8080"
+  expose: "{{ backend_host_port }}:{{ backend_container_port }}"
   kube_replicas: 3
+  kube_app: backend
+
+connector_spec:
+  kubernetes:
+    selector: app=backend
+  system:
+    host: localhost
 
 application_resources:
 - apiVersion: skupper.io/v2alpha1
@@ -14,5 +32,6 @@ application_resources:
     namespace: "{{ inventory_namespace }}"
   spec:
     routingKey: backend
-    port: 8081
-    host: localhost
+    port: "{{ backend_container_port if skupper_platform == 'kubernetes' else backend_host_port | int}}"
+    host: "{{ connector_spec[skupper_platform].host | default (omit) }}"
+    selector: "{{ connector_spec[skupper_platform].selector | default (omit) }}"

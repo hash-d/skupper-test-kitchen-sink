@@ -5,6 +5,12 @@ container_workloads:
   image: quay.io/skupper/hello-world-frontend # TODO externalize
   expose: "8080:8080"
 
+listener_host:
+  kubernetes: backend
+  docker: 0.0.0.0
+  podman: 0.0.0.0
+  systemd: 0.0.0.0
+
 application_resources:
 - apiVersion: skupper.io/v2alpha1
   kind: Listener
@@ -14,7 +20,13 @@ application_resources:
   spec:
     routingKey: backend
     port: 8082
-    host: 0.0.0.0
+    host: "{{ listener_host[skupper_platform] }}"
+
+url_host:
+  kubernetes: backend
+  docker: localhost
+  podman: localhost
+  systemd: localhost
 
 application_url_checks:
-- url: http://localhost:8082/api/hello
+- url: http://{{ url_host[skupper_platform] }}:8082/api/hello

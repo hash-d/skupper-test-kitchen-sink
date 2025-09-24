@@ -2,3 +2,4 @@
 
 ansible_hostname: localhost
 ansible_connection: local
+skupper_platform: kubernetes
