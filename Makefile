@@ -95,4 +95,5 @@ kube-1-inventory:
 		-i inventory/apps/hello/ \
 		-i inventory/local/dh-kube.yaml \
 		-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
+		$(OPTIONS) \
 		--list -y all

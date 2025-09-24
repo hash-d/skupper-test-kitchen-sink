@@ -1,7 +1,7 @@
 ---
 
 - name: Verify
-  hosts: all
+  hosts: docker,podman,systemd
   tasks:
   - name: Check URI
     ansible.builtin.uri:
