@@ -1,0 +1,14 @@
+---
+
+backends:
+  hosts:
+    backend:
+
+frontends:
+  hosts:
+    frontend:
+
+kube:
+  hosts:
+    backend:
+    frontend:

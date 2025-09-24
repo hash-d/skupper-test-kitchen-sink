@@ -1,0 +1,41 @@
+---
+
+# This creates the deployments, as specified by the application in container_workloads.
+#
+# This allows the application (as a container) to be deployed on both Podman/Docker and
+# Kube, using the same specification from inventory/apps
+
+- hosts: kube
+  gather_facts: no
+  tasks:
+  - name: Create Kube workloads
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      kind: Deployment
+      api_version: apps/v1
+      namespace: "{{ inventory_namespace }}"
+      name: "{{ item.name }}"
+      state: present
+      definition:
+        spec:
+          # TODO: this is not working; investigate
+          #replicas: "{{ item.kube_replicas | default (1) | int }}"
+          selector:
+            matchLabels:
+              app: "{{ item.name }}"
+          template:
+            metadata:
+              labels:
+                app: "{{ item.name }}"
+                ks.id: "{{ test_id }}"
+                ks.test: "{{ test_name }}"
+            spec:
+              containers:
+              - image: "{{ item.image }}"
+                name: "{{ item.name }}"
+        metadata:
+          labels:
+            app: "{{ item.name }}"
+            ks.id: "{{ test_id }}"
+            ks.test: "{{ test_name }}"
+    loop: "{{ container_workloads }}"

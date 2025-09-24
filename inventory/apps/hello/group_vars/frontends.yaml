@@ -10,7 +10,7 @@ application_resources:
   kind: Listener
   metadata:
     name: backend
-    namespace: "{{ inventory_hostname }}"
+    namespace: "{{ inventory_namespace }}"
   spec:
     routingKey: backend
     port: 8082

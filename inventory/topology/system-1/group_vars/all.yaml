@@ -1,0 +1,5 @@
+---
+
+# TODO: consider changing this to something more similar to Kube
+# (ie, test_id - test_name - inventory_hostname )
+inventory_namespace: "{{ inventory_hostname }}"

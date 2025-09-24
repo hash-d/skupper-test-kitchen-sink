@@ -1,0 +1,46 @@
+---
+
+# Creates the namespace associated with an inventory host
+#
+# The namespace name is set on the variable inventory_namespace
+#
+# That, in turn, is defined on inventory/topology/kube-1/group_vars/all/namespace.yaml
+#
+# All namespaces define the following labels:
+#
+# - ks.id, with the test_id
+# - ks.test, with the test_name
+
+- hosts: kube
+  gather_facts: no
+  tasks:
+  # TODO: create role?  Use e2e.tests?
+  - name: Create namespace
+    kubernetes.core.k8s:
+      # Use the kubeconfig defined on the inventory.  If not available, try without
+      # one (ie, use ~/kube/config or $KUBECONFIG)
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      kind: Namespace
+      api_version: v1
+      name: "{{ inventory_namespace }}"
+      state: present
+      definition:
+        metadata:
+          labels:
+            ks.id: "{{ test_id }}"
+            ks.test: "{{ test_name }}"
+  - name: Create labels config map
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      kind: ConfigMap
+      api_version: v1
+      name: kitchen-sink-labels
+      namespace: "{{ inventory_namespace }}"
+      state: present
+      definition:
+        metadata:
+          labels:
+            skupper.io/label-template: "true"
+            sk.id: "{{ test_id }}"
+            sk.name: "{{ test_name }}"
+        data: {}
