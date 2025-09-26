@@ -70,38 +70,36 @@ single:
 		$(OPTIONS) \
 		test.yaml
 
-# kube-1
-kube-1-setup:
+check:
 	ansible-playbook \
 		-i inventory/basic \
-		-i inventory/topology/kube-1/ \
-		-i inventory/apps/hello/ \
-		-i inventory/local/dh-kube.yaml \
-		-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
+		-i inventory/topology/$(TOPO)/ \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL) \
+		-e test_id=$(TEST_ID) \
+		-v \
+		$(OPTIONS) \
+		check.yaml
+		#-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
+
+setup:
+	ansible-playbook \
+		-i inventory/basic \
+		-i inventory/topology/$(TOPO)/ \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL) \
 		-e test_id=$(TEST_ID) \
 		-v \
 		$(OPTIONS) \
 		setup.yaml
+		#-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
 
-kube-1:
+verify:
 	ansible-playbook \
 		-i inventory/basic \
-		-i inventory/topology/kube-1/ \
-		-i inventory/apps/hello/ \
-		-i inventory/local/dh-kube.yaml \
-		-v \
-		-e test_id=$(TEST_ID) \
-		$(OPTIONS) \
-		test.yaml
-		# not necessary for kube, yet
-		# -i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
-
-kube-1-verify:
-	ansible-playbook \
-		-i inventory/basic \
-		-i inventory/topology/kube-1/ \
-		-i inventory/apps/hello/ \
-		-i inventory/local/dh-kube.yaml \
+		-i inventory/topology/$(TOPO)/ \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL) \
 		-v \
 		-e test_id=$(TEST_ID) \
 		$(OPTIONS) \
@@ -109,12 +107,12 @@ kube-1-verify:
 		# not necessary for kube, yet
 		#-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
 
-kube-1-teardown:
+teardown:
 	ansible-playbook \
 		-i inventory/basic \
-		-i inventory/topology/kube-1/ \
-		-i inventory/apps/hello/ \
-		-i inventory/local/dh-kube.yaml \
+		-i inventory/topology/$(TOPO)/ \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL) \
 		-v \
 		-e test_id=$(TEST_ID) \
 		$(OPTIONS) \
@@ -122,13 +120,37 @@ kube-1-teardown:
 		# not necessary for kube, yet
 		# -i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
 
+gen_dir:
+	[ -d generated ] || mkdir generated
+
 .PHONY: inventory
-kube-1-inventory:
+inventory: gen_dir
+	ansible-playbook \
+		-i inventory/basic \
+		-i inventory/topology/$(TOPO)/ \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL)/ \
+		$(OPTIONS) \
+		inventory.yaml
+	dot -Tpdf generated/inventory.dot -o generated/inventory.pdf
 	ansible-inventory \
 		-i inventory/basic \
-		-i inventory/topology/kube-1/ \
-		-i inventory/apps/hello/ \
-		-i inventory/local/dh-kube.yaml \
-		-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
+		-i inventory/topology/$(TOPO)/inv.yaml \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL) \
 		$(OPTIONS) \
 		--list -y all
+		#-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
+
+test:
+	ansible-playbook \
+		-i inventory/basic \
+		-i inventory/topology/$(TOPO)/ \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL) \
+		-v \
+		-e test_id=$(TEST_ID) \
+		$(OPTIONS) \
+		test.yaml
+		# not necessary for kube, yet
+		# -i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
