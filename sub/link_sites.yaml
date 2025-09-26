@@ -1,0 +1,7 @@
+---
+
+- name: Link sites
+  hosts: all
+  gather_facts: no
+  tasks:
+  - include_tasks: link_{{ skupper_platform_type }}_sites.yaml

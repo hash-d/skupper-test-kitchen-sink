@@ -1,21 +1,17 @@
 ---
 
-- name: Link sites
-  hosts: kube
-  gather_facts: no
-  tasks:
-  - name: Issue a Skupper access token on target namespace
-    skupper.v2.token:
-      kubeconfig: "{{ hostvars[item].kubeconfig | default (omit) }}"
-      namespace: "{{ hostvars[item].inventory_namespace }}"
-      name: "{{ inventory_namespace }}-to-{{ hostvars[item].inventory_namespace }}"
-      redemptions_allowed: 1
-    register: token
-    loop: "{{ skupper_links | default ([]) }}"
+- name: Issue a Skupper access token on target namespace
+  skupper.v2.token:
+    kubeconfig: "{{ hostvars[item].kubeconfig | default (omit) }}"
+    namespace: "{{ hostvars[item].inventory_namespace }}"
+    name: "{{ inventory_namespace }}-to-{{ hostvars[item].inventory_namespace }}"
+    redemptions_allowed: 1
+  register: token
+  loop: "{{ skupper_links | default ([]) }}"
 
-  - name: Apply token locally
-    skupper.v2.resource:
-      kubeconfig: "{{ kubeconfig | default (omit) }}"
-      def: "{{ item.token }}"
-      namespace: "{{ inventory_namespace }}"
-    loop: "{{ token.results | default ([]) }}"
+- name: Apply token locally
+  skupper.v2.resource:
+    kubeconfig: "{{ kubeconfig | default (omit) }}"
+    def: "{{ item.token }}"
+    namespace: "{{ inventory_namespace }}"
+  loop: "{{ token.results | default ([]) }}"

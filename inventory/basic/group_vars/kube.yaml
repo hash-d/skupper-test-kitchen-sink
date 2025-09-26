@@ -1,5 +1,6 @@
 ---
 
-ansible_hostname: localhost
+ansible_host: localhost
 ansible_connection: local
 skupper_platform: kubernetes
+skupper_platform_type: kube

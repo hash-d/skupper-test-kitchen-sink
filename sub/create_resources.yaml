@@ -1,0 +1,7 @@
+---
+
+- name: Create Skupper resources
+  hosts: all
+  gather_facts: no
+  tasks:
+  - include_tasks: create_{{ skupper_platform_type }}_resources.yaml

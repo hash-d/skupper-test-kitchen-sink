@@ -1,3 +1,4 @@
 ---
 
 skupper_platform: linux
+skupper_platform_type: system

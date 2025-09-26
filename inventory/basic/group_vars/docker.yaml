@@ -1,3 +1,4 @@
 ---
 
 skupper_platform: docker
+skupper_platform_type: system

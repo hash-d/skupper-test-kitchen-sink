@@ -1,11 +1,8 @@
 ---
 
-- hosts: kube
-  gather_facts: no
-  tasks:
-  - name: Create Skupper resources
-    kubernetes.core.k8s:
-      kubeconfig: "{{ kubeconfig | default (omit) }}"
-      state: present
-      definition: "{{ item }}"
-    loop: "{{ application_resources | default ([]) }}"
+- name: Create Skupper resources
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig | default (omit) }}"
+    state: present
+    definition: "{{ item }}"
+  loop: "{{ application_resources | default ([]) }}"

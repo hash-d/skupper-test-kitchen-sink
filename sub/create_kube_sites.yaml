@@ -1,31 +1,17 @@
 ---
 
-- hosts: kube
-  gather_facts: no
-  tasks:
-  - name: Create the site resource
-    skupper.v2.resource:
-      platform: "{{ skupper_platform }}"
-      kubeconfig: "{{ kubeconfig | default (omit) }}"
-      namespace: "{{ inventory_namespace }}"
-      def:
-        apiVersion: skupper.io/v2alpha1
-        kind: Site
-        metadata:
-          name: "{{ inventory_namespace }}"
-          namespace: "{{ inventory_namespace }}"
-          labels:
-            ks.id: "{{ test_id }}"
-            ks.test: "{{ test_name }}"
-        spec: "{{ site_spec | default(omit) }}"
-
-#  # TODO: create role?  Use e2e.tests?
-#  - name: Create namespace
-#    kubernetes.core.k8s:
-#      name: "{{ inventory_namespace }}"
-#      state: present
-#      definition:
-#        metadata:
-#          labels:
-#            ks.id: "{{ test_id }}"
-#            ks.test: "{{ test_name }}"
+- name: Create the site resource
+  skupper.v2.resource:
+    platform: "{{ skupper_platform }}"
+    kubeconfig: "{{ kubeconfig | default (omit) }}"
+    namespace: "{{ inventory_namespace }}"
+    def:
+      apiVersion: skupper.io/v2alpha1
+      kind: Site
+      metadata:
+        name: "{{ inventory_namespace }}"
+        namespace: "{{ inventory_namespace }}"
+        labels:
+          ks.id: "{{ test_id }}"
+          ks.test: "{{ test_name }}"
+      spec: "{{ site_spec | default(omit) }}"
