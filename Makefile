@@ -123,8 +123,7 @@ teardown:
 gen_dir:
 	[ -d generated ] || mkdir generated
 
-.PHONY: inventory
-inventory: gen_dir
+inv-list:
 	ansible-inventory \
 		-i inventory/basic \
 		-i inventory/topology/$(TOPO)/inv.yaml \
@@ -132,6 +131,9 @@ inventory: gen_dir
 		-i inventory/local/$(LOCAL) \
 		$(OPTIONS) \
 		--list -y all
+
+.PHONY: inventory
+inventory: gen_dir inv-list
 	ansible-playbook \
 		-i inventory/basic \
 		-i inventory/topology/$(TOPO)/ \
