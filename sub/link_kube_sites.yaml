@@ -4,16 +4,16 @@
   hosts: kube
   gather_facts: no
   tasks:
-  - name: Issue a Skupper access token on {{ item }}
+  - name: Issue a Skupper access token on target namespace
     skupper.v2.token:
       kubeconfig: "{{ hostvars[item].kubeconfig | default (omit) }}"
       namespace: "{{ hostvars[item].inventory_namespace }}"
-      name: "{{ hostvars[item].inventory_namespace }}-grant"
+      name: "{{ inventory_namespace }}-to-{{ hostvars[item].inventory_namespace }}"
       redemptions_allowed: 1
     register: token
     loop: "{{ skupper_links | default ([]) }}"
 
-  - name: Apply token
+  - name: Apply token locally
     skupper.v2.resource:
       kubeconfig: "{{ kubeconfig | default (omit) }}"
       def: "{{ item.token }}"
