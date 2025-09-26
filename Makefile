@@ -125,6 +125,13 @@ gen_dir:
 
 .PHONY: inventory
 inventory: gen_dir
+	ansible-inventory \
+		-i inventory/basic \
+		-i inventory/topology/$(TOPO)/inv.yaml \
+		-i inventory/apps/$(APP)/ \
+		-i inventory/local/$(LOCAL) \
+		$(OPTIONS) \
+		--list -y all
 	ansible-playbook \
 		-i inventory/basic \
 		-i inventory/topology/$(TOPO)/ \
@@ -133,13 +140,6 @@ inventory: gen_dir
 		$(OPTIONS) \
 		inventory.yaml
 	dot -Tpdf generated/inventory.dot -o generated/inventory.pdf
-	ansible-inventory \
-		-i inventory/basic \
-		-i inventory/topology/$(TOPO)/inv.yaml \
-		-i inventory/apps/$(APP)/ \
-		-i inventory/local/$(LOCAL) \
-		$(OPTIONS) \
-		--list -y all
 		#-i inventory/local/rhsi-$(SKUPPER_VERSION).yaml \
 
 test:
