@@ -1,5 +1,7 @@
 ---
 
+- import_playbook: check.yaml
+
 - import_playbook: setup.yaml
 
 - import_playbook: verify.yaml

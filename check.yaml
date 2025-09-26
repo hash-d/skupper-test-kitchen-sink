@@ -1,0 +1,8 @@
+---
+
+- name: Check environment is sane before starting tests
+  gather_facts: no
+  hosts: kube
+  tasks:
+  - kubernetes.core.k8s_cluster_info:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
