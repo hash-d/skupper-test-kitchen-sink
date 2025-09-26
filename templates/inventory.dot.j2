@@ -1,0 +1,76 @@
+{% macro site_node (hostvars, site) %}
+	"{{ site }}" [
+		shape=none;
+		label=<<TABLE>
+			<TR>
+				<TD>Platform</TD>
+				<TD>{{ hostvars[site].skupper_platform }}</TD>
+			</TR>
+			<TR>
+				<TD>Host</TD>
+				<TD>{{ hostvars[site].ansible_hostname }}</TD>
+			</TR>
+		</TABLE>>
+	];
+{% endmacro %}
+digraph inventory {
+
+compound=true;
+
+{% for site in groups['all'] %}
+
+subgraph "cluster_{{ site }}" {
+        label = "{{ site }}";
+        style = filled;
+        color = lightgrey;
+
+	"{{ site }}" [
+		# label="{{ site }}\n({{ hostvars[site].inventory_namespace }})",
+		shape=box,
+		{{ 'style="dashed",' if hostvars[site].site_spec.linkAccess is defined }}
+
+	];
+
+	{% for workload in hostvars[site].container_workloads | default ([]) %}
+		"{{site}}-{{workload.name}}" [ label="{{ workload.name }}", shape="box3d" ];
+		 # "{{site}}" -> "{{site}}-{{workload.name}}";
+	{% endfor %}
+
+	{% for resource in hostvars[site]["application_resources"] | default ([]) %}
+		"{{ site }}-{{ resource.kind }}-{{ resource.metadata.name }}" [ label="{{ resource.kind }}\n{{resource.metadata.name}}" ];
+		"{{ site }}" -> "{{ site }}-{{ resource.kind }}-{{ resource.metadata.name }}";
+	{% endfor %}
+
+	{{ site_node (hostvars, site) }}
+
+}
+
+{% endfor %}
+
+{% for site in groups['all'] %}
+	{% for link in hostvars[site]["skupper_links"] | default ([]) %}
+		"{{ site }}" -> "{{ link }}" [
+			#ltail="cluster_{{ site }}",
+			lhead="cluster_{{ link }}",
+		];
+	{% endfor %}
+{% endfor %}
+
+subgraph "cluster_key" {
+        label = "Key";
+        style = filled;
+        color = lightblue;
+
+	site [ shape=box ];
+	workload [ shape=box3d ];
+	resource;
+
+	site -> workload;
+	site -> resource;
+	site -> site_access
+	site_access  [style="dashed", shape=box];
+
+}
+
+
+}
