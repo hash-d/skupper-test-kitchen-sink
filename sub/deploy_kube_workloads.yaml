@@ -37,4 +37,4 @@
                 name: "{{ item.name }}"
         metadata:
           labels: "{{ labels }}"
-    loop: "{{ container_workloads }}"
+    loop: "{{ container_workloads | default ([]) }}"

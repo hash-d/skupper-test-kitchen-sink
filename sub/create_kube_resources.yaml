@@ -8,4 +8,4 @@
       kubeconfig: "{{ kubeconfig | default (omit) }}"
       state: present
       definition: "{{ item }}"
-    loop: "{{ application_resources }}"
+    loop: "{{ application_resources | default ([]) }}"
