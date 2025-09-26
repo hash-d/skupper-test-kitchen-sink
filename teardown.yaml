@@ -45,8 +45,8 @@
       api_version: v1
       name: "{{ inventory_namespace }}"
       state: absent
-      wait: true
-      wait_timeout: 600
+      wait: "{{ ks_wait_kube_teardown | default (false) }}"
+      wait_timeout: "{{ ks_wait_kube_teardown_seconds | default (600) }}"
 
 - name: Remove workloads on Docker
   hosts: docker
