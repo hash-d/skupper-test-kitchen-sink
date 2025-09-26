@@ -1,3 +1,4 @@
 
+generated/*
 inventory/local/*
 !inventory/local/README.md
