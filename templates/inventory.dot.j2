@@ -4,11 +4,11 @@
 		label=<<TABLE>
 			<TR>
 				<TD>Platform</TD>
-				<TD>{{ hostvars[site].skupper_platform }}</TD>
+				<TD>{{ hostvars[site].skupper_platform | default ('UNKNOWN') }}</TD>
 			</TR>
 			<TR>
 				<TD>Host</TD>
-				<TD>{{ hostvars[site].ansible_hostname }}</TD>
+				<TD>{{ hostvars[site].ansible_host }}</TD>
 			</TR>
 		</TABLE>>
 	];
