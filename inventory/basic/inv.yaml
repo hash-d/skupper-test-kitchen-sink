@@ -1,3 +1,7 @@
 ---
 
-all:
+system:
+  children:
+    systemd:
+    podman:
+    docker:

@@ -1,7 +1,7 @@
 ---
 
-- name: Create Skupper sites
-  hosts: all
+- name: Install system controller
+  hosts: system
   gather_facts: no
   serial: "{{ ks_serial | default (omit) }}"
   tasks:
@@ -14,6 +14,11 @@
       platform: "{{ ks_workload_platform }}"
     when: ks_install_system_controller | default (false)
 
+- name: Create Skupper sites
+  hosts: all
+  gather_facts: no
+  serial: "{{ ks_serial | default (omit) }}"
+  tasks:
   - name: Create the Site
     skupper.v2.resource:
       platform: "{{ skupper_platform }}"
@@ -33,7 +38,7 @@
         spec: "{{ site_spec | default(omit) }}"
 
 - name: Set up system sites
-  hosts: docker,podman,systemd
+  hosts: system
   serial: "{{ ks_serial | default (omit) }}"
   gather_facts: no
   tasks:
