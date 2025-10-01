@@ -17,16 +17,30 @@ The objective of the tests is mainly for non-functional verifications:
 Executing tests
 ===============
 
+Tests are executed by calling `make`.  The default `make` target is `test`, which will run the setup, verify and teardown phases.
+
+To call it,  you'll need to set at least `APP`, `TOPO` and `LOCAL`:
+
+    make APP=hello TOPO=1-1 SKUPPER_VERSION=2.1.1 LOCAL=dh-system.yaml
+
+Where
+
+* `APP` is a directory under `inventory/apps` which defines the workloads, connectors and listeners
+* `TOPO` is a directory under `inventory/topology` which describes how the sites will be connected
+* `LOCAL` is a file or directory under `inventory/local`.  This directory is not under git control, and this is where the actual hosts are defined.
+
 Make targets
 ============
 
 `test`
 ------
 
-The main target: it will run `test.yaml`, which in turn calls `setup.yaml`, `verify.yaml`, and `teardown.yaml`, with an optional pause before teardown.  It does not call `prep.yaml`.
+The main target: it will run `test.yaml`, which in turn calls `check.yaml`, `setup.yaml`, `verify.yaml`, and `teardown.yaml`, with an optional pause before teardown.  It does not call `prep.yaml`.
 
 `prep`
 ------
+
+/!\ **TODO**
 
 This calls `prep.yaml`, to make changes so a host is prepared to run this specific test.  It makes changes to the host, so make sure you understand what it is doing, especially if running in your own computer.
 
@@ -42,7 +56,7 @@ Examples of things it may do:
 
 These are the component parts of a full test, that can be called individually for development, testing or composition.
 
-When running them separately, make sure to defined `TEST_ID`, lest you may try to verify or teardown namespaces different from what were created on the setup.
+When running them separately, make sure to define `TEST_ID`, lest you may try to verify or teardown namespaces different from what were created on the setup.
 
 `check`, `inv-list` and `inventory`
 -----------------------------------
@@ -60,166 +74,154 @@ This is an auxiliary target that will call `reload.yaml`, which will execute `sk
 
 To reload only some of the hosts, use `OPTIONS=--limit="<filter>"`.
 
+The default operation is to reload all sites at the same time.  To change that, use `OPTIONS=-f1` or `OPTIONS="-e sk_serial=1"`.
+
 General concepts
 ================
 
-- Ansible inventory hosts are not actual hosts, but abstract Skupper sites; they can be any type of system site or a Kubernetes site
-
-Creating topologies
-===================
-
-The topology inventories declare abstract topologies: which sites exist and how they connect to each other.  Actual hosts and namespaces are defined on local inventories, instead.
-
-There are three major groups at this time:
-
-- backends
-- frontends
-- hubs
-
-[comment]: # in the future, perhaps add at least one more group: DB.  Perhaps also DMZ, but then hubs may be just that.  DBs may be backends, too, but in general single deployment?
-
-The actual topologies are created on subgroups that represent individual hosts or namespaces:
-
-- backend-0-9
-- frontend-0-9
-- hub-0-9
-
-On these subgroup vars, the topology is defined by declaring `skupper_links`.  For example, you could have `inventory/topology/1-1/group_vars/frontend-0` with the following contents:
-
-```
-skupper_links:
-- backend-0
-```
-
-For a hub/spoke topology, the links could be declared on the top-level group.  For example, `inventory/topology/1-1/group_vars/frontend` could have this:
-
-```
-skupper_links:
-- hub-0
-```
-
-Besides linking, the group vars on the topology inventory also define site configuration and topology-specific Skupper resources.  For example, for a site that accepts incoming links:
-
-```
----
-
-site_spec:
-  linkAccess: default
-
-site_resources:
-- apiVersion: skupper.io/v2alpha1
-  kind: RouterAccess
-  metadata:
-    name: access-1
-  spec:
-    roles:
-      - port: 55671
-        name: inter-router
-      - port: 45671
-        name: edge
-    bindHost: "{{ ansible_host }}"
-```
-
-:!: **Attention**: at this level, you don't know whether the hosts are system or kubernetes sites.  And, if they're system sites, more than one could reside in a single VM (for example, for testing Podman and Docker sites running side by side).  For that reason, make sure any ports you declare on your topology are unique for the topology.
-
-Creating apps
-=============
-
-The directories under inventory/apps contain the configuration of the applications that will be created for the test, and the verifications that can be done to confirm that application is working correctly.
-
-The application definitions should always be set for groups.  Here, attention must be taken on whether adeployment can exist on multiple hosts (actual hosts or namespaces), or not.
-
-If only one  XXX
-
-On the apps, you can define the following variables:
-
-`container_worloads`
---------------------
-
-A list of dictionaries, with images to be deployed on the host/namespace:
-
-```
-container_workloads:
-- name: hello-world-frontend
-  image: quay.io/skupper/hello-world-frontend
-  expose: "8080:8080"
-```
-
-`application_resources`
+Ansible inventory hosts
 -----------------------
 
-A list of K8S resource definitions that can be fed to skupper.v2.resource for creation (such as Listener, Connector, etc).
+Ansible inventory hosts are not actually individual hosts, but abstract Skupper sites; they can be any type of system site or a Kubernetes site:
 
-`application_url_checks`
-------------------------
+  - For system sites, for example, a single actual host may be assigned to more than one inventory host, in which case several different skupper namespaces may be created on the host
+  - For kube sites, the hosts will generally use the `local` connection, and may (or not) differ on `kubeconfig`.
 
-A list of URLs to be verified from the host/namespace.  In all cases, curl will be used for the testing; directly for system sites, via Lanyard for Kube.
+In any case, each inventory host will correspond to a single, unique Skupper or K8S namespace.
 
-Local inventories
-=================
+Technology groups
+-----------------
 
-This is where actual hosts and namespaces are declared, and associated to groups.
+Each host must be explicitly declared to belong to one (and only one) of four technology groups:
 
-Configuration
-=============
+- kube
+- docker
+- podman
+- systemd
 
-Make variables
---------------
+Their belonging to one of these groups will determine how workloads are deployed, sites created, links established, listeners and connectors defined, and so on.
 
-| Name    | Required | Description |
-| :---    | :---     | :---        |
-| `TOPO`  | Y | The topology to be used.  List available under `inventory/topology` |
-| `APP`   | Y | The app to be run.  `inventory/apps` |
-| `LOCAL` | Y | The local inventory.  This is where hosts are defined and set under role and technology groups |
-| `SKUPPER_VERSION` | | `inventory/version`.  Use this to populate image variables, when required |
-| `TEST_ID` | | If not set, the Makefile will generate a random value.  That allows the same test to be run in parallel against the same cluster, as the `TEST_ID` is part of the namespaces.  When using Kitchen Sink for environment preparation, however, it may be necessary to set `TEST_ID` so different executions deal with the same namespaces.  Make it short. |
+Example local inventory snippet:
 
-Inventory
----------
+    kube:
+      hosts:
+        frontend-0:
+    podman:
+      hosts:
+        hub-0:
+    docker:
+      hosts:
+        backend-0:
 
-These variables can be set individually on the local inventory's `host_vars`, per group on `group_vars` or for all hosts via Ansible's `-e` option.  In that case, pass it to the make file with the `OPTIONS` variable:
+In addition to these individual groups, there is also a `system` group that encompasses `docker`, `podman` and `systemd`.  Hosts should not be set directly to that group, however, as the playbooks would not know how to handle them.  That group exists to simplify `hosts` filters on plays that apply to all types of system sites.
 
-    make APP=hello TOPO=1-1 LOCAL=local-1 test OPTIONS='-e ks_serial=1
+Role groups
+-----------
+
+Additionally, each host must also be explicitly declared to belong to one of the following role groups:
+
+- frontends
+- backends
+- hubs
+
+`frontend` and `backends` are similar: besides the sites, they'll generally have workloads deployed on them.
+
+`hubs` generally will have no worklods, serving only as routing nodes in the VAN.
+
+Example local inventory snippet:
+
+    frontends:
+      hosts:
+        frontend-0
+    backends:
+      hosts:
+        backends-[0:3]
+    hubs:
+      hosts:
+        hub-0:
+
+Note that while most topologies will have all three role groups defiened, some may not include `hubs`.  If you define hosts in your local inventory on the `hubs` group for those topologies, the sites will be created on those hosts, but they'll not be connected to the VAN.
 
 
-| Name | Type | Default Value | Description |
-| :--- | :--- | :--- | :--- |
-| `kubeconfig` | `string` | unset/omit | If all testing goes to a single cluster, this can be defined on `group_vars/kube` or via `-e kubeconfig=`.  Otherwise, set it per host or per group. |
-| `ks_install_system_controller` | `boolean` | `true` | This option is `true` by default on `podman`, `systemd` and `docker`, and it is not set for `kubernetes`.  It controls whether the system controller is to be installed (and later removed, on teardown) |
-| `ks_pause` | n/a | unset | Whether `test.yaml` should pause between the `verify` and `teardown` steps.  This will take effect simply by defining the variable; any type, any value. Use `OPTIONS="-e pause="` to activate it.|
-| `ks_retry_multiplier` | `int` | 1 | A multiplier to be used on the `retries` keyword.  It does not affect the delay between retries, only the number of retries.  Set it to zero to remove all retries |
-| `ks_serial` | `int` | unset / omit | Some plays (not all) can be set to run with a smaller concurrency by setting the `keyword` serial via this variable.  To restrict concurrency on all plays, use `OPTIONS=-f1` |
-| `ks_wait_kube_teardown` | `boolean` | `false` | Whether the test should wait for the namespace removal to complete |
-| `ks_wait_kube_teardown_seconds` | `integer` | `600` | How many seconds to wait for the namespace removal |
-| `ks_workload_platform` | `string` | depends | This selects how workloads will be deployed.  Defaults to same as `skupper_platform`, except for `systemd`, where `podman` is used by default.  Change this only if you want your workloads to run in a different container engine |
+Further reading
+===============
 
-Images
-------
+- [Topologies](inventory/topology/README.md)
+- [Apps](inventory/apps/README.md)
+- [Configuration](configuration.md)
 
-*   `cli_image`
-*   `router_image`
-*   `system_controller_image`
 
-Generated
----------
+Local inventories and examples
+===============================
 
-These variables are generated by parts of the playbooks or in the inventory itself, and are used elsewehere.
+As mentioned above, this is where actual hosts are declared, and associated to groups.  They reside on `inventory/local`, and can either be single files or directories.
 
-| Name | Type | Default Value | Description |
-| :--- | :--- | :--- | :--- |
-| `inventory_namespace` | `string` | `ks_{test_id}-{test_name}-{inventory_hostname}`| This will become the value of the `platform` field on `skupper.v2.*` calls.
+Those are local to your environment and not handled by git.
 
-Internal
---------
+On those files, you need to declare where your hosts exists on the two main groupings (technologies and roles).
 
-These variables control internal mechanics of the test, and should generally not be changed.
+You may also need to declare `ansible_host` for system sites, and you can define other host or group specific variables.
 
-| Name | Type | Default Value | Description |
-| :--- | :--- | :--- | :--- |
-| `ks_reached_end` | `boolean` | unset | This is set to true right before the teardown step, on any remaining hosts — that is, on any hosts that did not fail previously.  It is used to allow the teardown process to take place at the end of the playbook, while still reporting failures. |
-| `skupper_platform` | `string` | `podman`, `docker`, `systemd` or `kube` | This will become the value of the `platform` field on `skupper.v2.*` calls.
-| `skupper_platform_type` | `string` | `system` or `kubernetes` | `podman`, `docker` and `systemd` sites share most of their behaviors, as opposed to `kube`.  This variable is used to group these platform types to simplify logic |
-| `test_name` | `string` | n/a | The name of the test.  This is set on `group_vars/all` on each test.  This variable is used when constructing the namespace names, so its value needs to be valid for [RFC 1123](https://datatracker.ietf.org/doc/html/rfc1123)
+Check the applications and topologies README files for details on what can be configured, as well as the [configuration](configuration.md) page.
+
+kube-only, 10 backend sites
+---------------------------
+
+It's easy to create several sites on a single kube cluster, thanks to Ansible inventory's range system, and the fact that they do not need to have `ansible_host` defined (the unique namespaces are created automatically).
+
+```
+kube:
+  hosts:
+    backend-[0:9]:
+    hub-0:
+    frontend-0:
+  vars:
+    kubeconfig: /path/to/kube
+backends:
+  hosts:
+    backend-[0-9]:
+hubs:
+  hosts:
+    hub-0:
+frontend:
+  hosts;
+    frontend-0:
+```
+
+system sites; all techs
+-----------------------
+
+For system sites, `ansible_host` needs to be declared for each host, as the expeced inventory hostnames (`[backend|frontend|hub]-[[:digit:]]`) do not correspond to actual host names.
+
+A single system could support more than one role or one technology, as long as the application, topology and operating system allow it (RHEL8, for example, does not support Podman and Docker sites on the same host).
+
+```
+podman:
+  hosts:
+    backend-0:
+      ansible_host: 10.0.0.1
+      ansible_user: cloud-user
+docker:
+  hosts:
+    hub-0:
+      ansible_host: 10.0.0.2
+      ansible_user: cloud-user
+systemd:
+  hosts:
+    frontend-0:
+      ansible_host: 10.0.0.3
+      ansible_user: cloud-user
+
+backends:
+  hosts:
+    backend-0:
+hubs:
+  hosts:
+    hub-0:
+frontend:
+  hosts;
+    frontend-0:
+```
 
 
 
@@ -257,3 +259,14 @@ Host names?
 - Site type?
 - Edgeness?
 - Application use?
+
+TODO
+====
+
+- Split inventory into inv-dot and inv-pdf
+- Make inv-dot a requirement for inv-pdf, test and verify
+  - Storing the whole inventory might give away secrets; the dot file requires no pre-reqs installed (only the inv-pdf target), and can be used as an evidence of the inventory that was used.
+- Generate (save) and print a test report: variables, git describe, etc
+- App and topology README: sample/template local inventories
+- Implement the `prep` target
+- Implement port shift values, to simplifly topology and application development
