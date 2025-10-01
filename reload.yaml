@@ -1,0 +1,15 @@
+---
+
+- name: Reload all sites
+  serial: "{{ ks_serial | default (omit) }}"
+  hosts: podman,docker,systemd
+  gather_facts: no
+  tasks:
+  - skupper.v2.system:
+      namespace: "{{ inventory_namespace }}"
+      platform: "{{ skupper_platform }}"
+      image: "{{ cli_image }}"
+      action: reload
+    register: system_results
+    environment:
+      SKUPPER_ROUTER_IMAGE: "{{ router_image | default(omit) }}"

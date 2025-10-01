@@ -5,4 +5,5 @@
     kubeconfig: "{{ kubeconfig | default (omit) }}"
     state: present
     definition: "{{ item }}"
+    namespace: "{{ inventory_namespace }}"
   loop: "{{ application_resources | default ([]) }}"

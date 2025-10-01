@@ -3,5 +3,17 @@
 - name: Link sites
   hosts: all
   gather_facts: no
+  serial: "{{ ks_serial | default (omit) }}"
   tasks:
+  - debug:
+      var: system_results
   - include_tasks: link_{{ skupper_platform_type }}_sites.yaml
+  handlers:
+  - name: Reload site
+    skupper.v2.system:
+      action: reload
+      image: "{{ cli_image }}"
+      namespace: "{{ inventory_namespace }}"
+      platform: "{{ skupper_platform }}"
+    environment:
+      SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"

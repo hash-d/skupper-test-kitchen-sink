@@ -1,55 +1,15 @@
 ---
 
-- name: Setup sites
-  hosts: docker,podman,systemd
-  # TODO investigate: without serial, it seems the parallel changes make
-  # something (skupper cli? the collection?) get lost and mix things, failing
-  serial: 1
-  any_errors_fatal: true
-  roles:
-  - name: setup_system_site
-
-- name: Setup kube sites
-  hosts: kube
-  tasks:
-  - debug:
-      msg: Hi
 
 - name: Connect sites
   hosts: all
   any_errors_fatal: true
   serial: 1
   tasks:
-  - name: Create the link resource
-    skupper.v2.resource:
-      namespace: "{{ inventory_hostname }}"
-      platform: "{{ skupper_platform }}"
-      def: "{{ hostvars[item].system_results.links[hostvars[item].ansible_host] }}"
-    loop: "{{ skupper_links | default ([]) }}"
-    notify:
-    - Reload site
-  handlers:
-  - name: Reload site
-    skupper.v2.system:
-      action: reload
-      image: "{{ cli_image }}"
-      namespace: "{{ inventory_hostname }}"
-      platform: "{{ skupper_platform }}"
-    environment:
-      SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
 
   - debug:
       msg: Connect.  Perhaps will need one per systemd/podman/docker/kube; or at least kube/non-kube, due to differences on how they behave
 
-- name: Deploy docker workloads
-  hosts: docker
-  roles:
-  - name: run_docker_workload
-
-- name: Deploy podman workloads -- systemd and podman sites
-  hosts: systemd,podman
-  roles:
-  - name: run_podman_workload
 
 #- name: Reload sites
 #  hosts: backends,hubs,frontends

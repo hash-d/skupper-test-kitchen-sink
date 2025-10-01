@@ -1,8 +1,16 @@
 ---
 
-- name: Check environment is sane before starting tests
+- name: Check kube environment
   gather_facts: no
   hosts: kube
   tasks:
-  - kubernetes.core.k8s_cluster_info:
+  - name: Check cluster is accessible
+    kubernetes.core.k8s_cluster_info:
       kubeconfig: "{{ kubeconfig | default (omit) }}"
+
+- name: Check system sites are accessible
+  gather_facts: no
+  hosts: systemd,podman,docker
+  tasks:
+  - name: Check host is accessible
+    ansible.builtin.ping:

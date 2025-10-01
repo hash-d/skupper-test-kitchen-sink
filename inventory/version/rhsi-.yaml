@@ -1,0 +1,7 @@
+---
+
+# This file is empty on purpose.
+# It exists only for make not to fail when a skupper version is not defined
+# (which is not always required)
+
+all:

@@ -1,0 +1,13 @@
+---
+
+- debug:
+    msg: "{{ hostvars[item].system_results }}"
+  loop: "{{ skupper_links | default ([]) }}"
+- name: Create the link resource
+  skupper.v2.resource:
+    namespace: "{{ inventory_namespace }}"
+    platform: "{{ skupper_platform }}"
+    def: "{{ hostvars[item].system_results.links[hostvars[item].ansible_host] }}"
+  loop: "{{ skupper_links | default ([]) }}"
+  notify:
+  - Reload site

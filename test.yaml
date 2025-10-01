@@ -10,6 +10,6 @@
   hosts: localhost
   tasks:
   - ansible.builtin.pause:
-    when: pause is defined
+    when: ks_pause is defined
 
 - import_playbook: teardown.yaml

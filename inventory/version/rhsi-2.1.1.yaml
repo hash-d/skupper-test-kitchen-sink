@@ -1,0 +1,5 @@
+all:
+  vars:
+    cli_image: registry-proxy.engineering.redhat.com/rh-osbs/service-interconnect-cli-rhel9:2.1.1-1
+    router_image: registry-proxy.engineering.redhat.com/rh-osbs/service-interconnect-skupper-router-rhel9:3.4.0-2
+    system_controller_image: registry-proxy.engineering.redhat.com/rh-osbs/service-interconnect-system-controller-rhel9:2.1.1-1

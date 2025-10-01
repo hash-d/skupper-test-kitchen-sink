@@ -2,3 +2,5 @@
 
 skupper_platform: linux
 skupper_platform_type: system
+ks_workload_platform: podman
+ks_install_system_controller: true

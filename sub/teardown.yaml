@@ -1,0 +1,78 @@
+---
+
+# We start by saving on `ks_reached_end` the list of hosts that did not fail
+# (actually, due to the way Ansible works, that variable will be set only
+# on those who did not fail and reached this far).
+#
+# Then, we run the teardown tasks, ignoring any failures (we want to report
+# failures on tests, not on teardown).
+#
+# Finally, we fail the whole playbook if any hosts had previously failed
+# (with `clear_host_errors`, the hosts would be only listed as failed, but
+# the whole playbook would list as successful).
+
+- name: Clear errors for cleanup
+  hosts: all
+  tasks:
+  - name: Save success status
+    ansible.builtin.set_fact:
+      ks_reached_end: true
+  - name: Clear errors
+    ansible.builtin.meta: clear_host_errors
+
+- name: Remove system sites
+  hosts: podman,docker,systemd
+  ignore_errors: true
+  tasks:
+  - name: Remove the system namespaces
+    skupper.v2.system:
+      namespace: "{{ inventory_namespace }}"
+      platform: "{{ skupper_platform }}"
+      image: "{{ cli_image }}"
+      action: stop
+    register: teardown_results
+    environment:
+      SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
+
+  - name: Remove the System Controller
+    skupper.v2.controller:
+      action: uninstall
+      image: "{{ system_controller_image | default (omit) }}"
+      platform: "{{ ks_workload_platform }}"
+    when: ks_install_system_controller | default (false)
+
+
+- name: Remove Kube namespaces
+  hosts: kube
+  ignore_errors: true
+  tasks:
+  - name: Remove Kube namespaces
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      kind: Namespace
+      api_version: v1
+      name: "{{ inventory_namespace }}"
+      state: absent
+      wait: "{{ ks_wait_kube_teardown | default (false) }}"
+      wait_timeout: "{{ ks_wait_kube_teardown_seconds | default (600) }}"
+
+- name: Remove workloads on Docker
+  hosts: docker
+  ignore_errors: true
+  roles:
+  - rm_docker_workload
+
+- name: Remove workloads on Podman
+  hosts: podman,systemd
+  ignore_errors: true
+  roles:
+  - rm_podman_workload
+
+- name: Fail playbook if any hosts failed previously
+  hosts: all
+  gather_facts: no
+  tasks:
+  - name: Re-state host failure
+    ansible.builtin.fail:
+      msg: Host had previous failures
+    when: not ( ks_reached_end | default (false) )

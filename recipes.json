@@ -1,0 +1,36 @@
+[
+	{
+		"kind": "exec-test",
+		"uri": "/usr/bin/make",
+		"args": [
+			"test",
+			"APP=hello",
+			"TOPO=1-1",
+			"LOCAL=dh-test.yaml",
+			"OPTIONS=-v -e setup_strategy=site_last"
+		],
+		"identifier": "site_last"
+	}, {
+		"kind": "exec-test",
+		"uri": "/usr/bin/make",
+		"args": [
+			"test",
+			"APP=hello",
+			"TOPO=1-1",
+			"LOCAL=dh-test.yaml",
+			"OPTIONS=-v -e setup_strategy=resource_last"
+		],
+		"identifier": "resource_last"
+	}, {
+		"kind": "exec-test",
+		"uri": "/usr/bin/make",
+		"args": [
+			"test",
+			"APP=hello",
+			"TOPO=1-1",
+			"LOCAL=dh-test.yaml",
+			"OPTIONS=-v -e setup_strategy=link_last"
+		],
+		"identifier": "link_last"
+	}
+]

@@ -4,6 +4,8 @@
   hosts: docker,podman,systemd
   gather_facts: no
   tasks:
+  - debug:
+      var: application_url_checks
   - name: Check URI
     ansible.builtin.uri:
       url: "{{ item.url }}"
@@ -11,7 +13,7 @@
     loop: "{{ application_url_checks | default ([]) }}"
     register: uri_check_result
     until: uri_check_result is success
-    retries: 3
+    retries: "{{ 10 * ( ks_retry_multiplier | default (1) | int ) }}"
     delay: 6
   - name: Show response
     ansible.builtin.debug:
@@ -29,5 +31,5 @@
     loop: "{{ application_url_checks | default ([]) }}"
     register: uri_check_result
     until: uri_check_result is success
-    retries: 10
+    retries: "{{ 10 * ( ks_retry_multiplier | default (1) | int ) }}"
     delay: 6

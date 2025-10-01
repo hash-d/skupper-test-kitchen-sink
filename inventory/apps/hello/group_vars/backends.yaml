@@ -19,7 +19,7 @@ container_workloads:
   kube_app: backend
 
 connector_spec:
-  kubernetes:
+  kube:
     selector: app=backend
   system:
     host: localhost
@@ -33,5 +33,5 @@ application_resources:
   spec:
     routingKey: backend
     port: "{{ backend_container_port if skupper_platform == 'kubernetes' else backend_host_port | int}}"
-    host: "{{ connector_spec[skupper_platform].host | default (omit) }}"
-    selector: "{{ connector_spec[skupper_platform].selector | default (omit) }}"
+    host: "{{ connector_spec[skupper_platform_type].host | default (omit) }}"
+    selector: "{{ connector_spec[skupper_platform_type].selector | default (omit) }}"

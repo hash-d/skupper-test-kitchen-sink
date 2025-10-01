@@ -8,4 +8,11 @@
     name: "{{ item.name }}"
     auto_remove: true
     published_ports: "{{ item.expose }}"
+
+    # "With Docker 20.10.2 or newer, this should be set to an empty string
+    # (`""') to avoid the port bindings without an explicit IP address to only
+    # bind to IPv4.  See
+    # https://github.com/ansible-collections/community.docker/issues/70 for
+    # details."
+    default_host_ip: ""
   loop: "{{ container_workloads | default ([]) }}"
