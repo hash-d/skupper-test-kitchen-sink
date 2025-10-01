@@ -1,6 +1,0 @@
----
-
-
-all:
-  hosts:
-    system-hub-1:
