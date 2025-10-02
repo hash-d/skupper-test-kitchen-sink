@@ -236,17 +236,26 @@ Playbooks
 - Verify
 - Teardown
 - Disruptors?
+- Helpers
+  - reload
+  - check
+  - inventory
 
 Inventories
 -----------
 
 - topology
-  - basic
-  - non-kube
-  - kube
-  - disconnected
-  - kube-to-non
-  - non-to-kube
+  - 1-1
+    - perhaps split in to: 1-frontend-n-backend and n-frontend-1-backend; links going to the '1' site
+  - front-hub-back
+    - can be used for disconnected, with the hub on the bastion
+  - two-hubs
+    - one hub for frontend, one for backend, and they are interconnected
+  - N
+    - like frame2's.  Simplest that can verify a variety of link settings
+  - Geo HA.  Two sets of two-hubs; the backend hubs have secondary links to the frontend hub on the other set with high cost, to be used in case one of the backend sites is lost
+  - topologies should accept some level of configuration
+    - setting HA, for example, so we do not have whole topologies just for that
 - assignment
   - assign application roles to nodes from the topology
 - application
@@ -270,3 +279,7 @@ TODO
 - App and topology README: sample/template local inventories
 - Implement the `prep` target
 - Implement port shift values, to simplifly topology and application development
+- Create kube children groups; allow local inventories to set hosts on them, adding specific functionality (for example, applications may expose frontend workloads via routes on OpenShift)
+- Change the way sites are prepared to accept links: instead of `site_spec` + `site_resources`, make it a single configuration that works for both kube and non-kube.  Still allow site specs, though
+- Change Makefile to use ansible-navigator, instead of ansible-playbook
+- Make inv-svg; add some svg as examples on README.md
