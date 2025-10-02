@@ -61,6 +61,7 @@ These variables control internal mechanics of the test, and should generally not
 | Name | Type | Default Value | Description |
 | :--- | :--- | :--- | :--- |
 | `ks_reached_end` | `boolean` | unset | This is set to true right before the teardown step, on any remaining hosts — that is, on any hosts that did not fail previously.  It is used to allow the teardown process to take place at the end of the playbook, while still reporting failures. |
+| `ks_site_created` | `boolean` | unset | This will be set to true on system sites only, after the site has been created for the namespace.  This controls whether `Reload` handlers will be run on the site (as they'd fail if the site is not yet created) |
 | `skupper_platform` | `string` | `podman`, `docker`, `systemd` or `kube` | This will become the value of the `platform` field on `skupper.v2.*` calls.
 | `skupper_platform_type` | `string` | `system` or `kubernetes` | `podman`, `docker` and `systemd` sites share most of their behaviors, as opposed to `kube`.  This variable is used to group these platform types to simplify logic |
 | `test_name` | `string` | n/a | The name of the test.  This is set on `group_vars/all` on each test.  This variable is used when constructing the namespace names, so its value needs to be valid for [RFC 1123](https://datatracker.ietf.org/doc/html/rfc1123)
