@@ -56,7 +56,7 @@ gen_dir:
 .PHONY: inventory
 inventory: gen_dir inv-list
 	ansible-playbook $(TEST_FLAGS) inventory.yaml
-	dot -Tpdf generated/inventory.dot -o generated/inventory.pdf
+	fdp -Tpdf generated/inventory.dot -o generated/inventory.pdf
 
 reload:
 	ansible-playbook $(TEST_FLAGS) reload.yaml

@@ -8,3 +8,4 @@
     ansible.builtin.template:
       dest: generated/inventory.dot
       src: templates/inventory.dot.j2
+      validate: nop %s

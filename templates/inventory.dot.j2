@@ -22,12 +22,11 @@ compound=true;
 subgraph "cluster_{{ site }}" {
         label = "{{ site }}";
         style = filled;
-        color = lightgrey;
+        color = {{ 'lightblue' if hostvars[site].site_spec.linkAccess is defined else 'lightgrey' }};
 
 	"{{ site }}" [
 		# label="{{ site }}\n({{ hostvars[site].inventory_namespace }})",
 		shape=box,
-		{{ 'style="dashed",' if hostvars[site].site_spec.linkAccess is defined }}
 
 	];
 
@@ -58,17 +57,16 @@ subgraph "cluster_{{ site }}" {
 
 subgraph "cluster_key" {
         label = "Key";
-        style = filled;
-        color = lightblue;
+        #style = filled;
+        color = lightgreen;
 
-	site [ shape=box ];
+	site [ shape=box, color=lightgrey, style=filled ];
 	workload [ shape=box3d ];
 	resource;
 
-	site -> workload;
 	site -> resource;
 	site -> site_access
-	site_access  [style="dashed", shape=box];
+	site_access  [color = lightblue, shape=box, style=filled];
 
 }
 
