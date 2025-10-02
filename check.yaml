@@ -10,7 +10,7 @@
 
 - name: Check system sites are accessible
   gather_facts: no
-  hosts: systemd,podman,docker
+  hosts: system
   tasks:
   - name: Check host is accessible
     ansible.builtin.ping:

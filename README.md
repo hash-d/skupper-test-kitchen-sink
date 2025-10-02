@@ -283,3 +283,6 @@ TODO
 - Change the way sites are prepared to accept links: instead of `site_spec` + `site_resources`, make it a single configuration that works for both kube and non-kube.  Still allow site specs, though
 - Change Makefile to use ansible-navigator, instead of ansible-playbook
 - Make inv-svg; add some svg as examples on README.md
+- Refactor into a collection?
+- change `container_workloads` from a list to a dictionary, so that their contents can be addressed by other parts of the inventory or playbook
+- create some checklists (and hopefully some way of checking them): always set kubeconfig, stage for skupper.v2.resource, etc...

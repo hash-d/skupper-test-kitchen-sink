@@ -39,6 +39,10 @@ Images
 *   `router_image`
 *   `system_controller_image`
 
+When working with system sites, `cli_image` and `system_controller_image` must be defined.  `router_image` is optional: if not defined, the default router image set on the `cli_image` will be used.
+
+These values are generally set in files under `inventory/version`, which are used by the Makefile by setting the variable `SKUPPER_VERSION`.
+
 Generated
 ---------
 

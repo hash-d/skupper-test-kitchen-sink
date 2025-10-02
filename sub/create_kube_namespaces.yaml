@@ -4,7 +4,7 @@
 #
 # The namespace name is set on the variable inventory_namespace
 #
-# That, in turn, is defined on inventory/topology/kube-1/group_vars/all/namespace.yaml
+# That, in turn, is defined on inventory/basic/group_vars/all/namespace.yaml
 #
 # All namespaces define the following labels:
 #

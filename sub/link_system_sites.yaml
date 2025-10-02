@@ -1,7 +1,11 @@
 ---
 
-- debug:
+# TODO: investigate other ways of creating the links
+# Does this work on kube targets?
+
+- ansible.builtin.debug:
     msg: "{{ hostvars[item].system_results }}"
+    verbosity: 1
   loop: "{{ skupper_links | default ([]) }}"
 - name: Create the link resource
   skupper.v2.resource:

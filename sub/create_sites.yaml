@@ -24,13 +24,14 @@
       platform: "{{ skupper_platform }}"
       kubeconfig: "{{ kubeconfig | default (omit) }}"
       namespace: "{{ inventory_namespace }}"
+      state: latest
       def:
         apiVersion: skupper.io/v2alpha1
         kind: Site
         metadata:
           name: "{{ inventory_namespace }}"
           # For system sites, spec.metadata.namespace is ignored, so we set it
-          # on the top-level field
+          # on the top-level field, only.
           #namespace: "{{ inventory_namespace }}"
           labels:
             ks.id: "{{ test_id }}"
@@ -47,12 +48,14 @@
       namespace: "{{ inventory_namespace }}"
       platform: "{{ skupper_platform }}"
       def: "{{ item }}"
+      state: latest
     loop: "{{ site_resources | default ([]) }}"
   - name: Setup the site
     skupper.v2.system:
       namespace: "{{ inventory_namespace }}"
       platform: "{{ skupper_platform }}"
       image: "{{ cli_image }}"
+      action: reload
     register: system_results
     environment:
       SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"

@@ -17,3 +17,4 @@
       platform: "{{ skupper_platform }}"
     environment:
       SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
+    # no need for 'when' here, because only sub/link_system_sites.yaml notifies

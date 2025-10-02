@@ -21,7 +21,7 @@
     ansible.builtin.meta: clear_host_errors
 
 - name: Remove system sites
-  hosts: podman,docker,systemd
+  hosts: system
   ignore_errors: true
   tasks:
   - name: Remove the system namespaces
@@ -56,17 +56,18 @@
       wait: "{{ ks_wait_kube_teardown | default (false) }}"
       wait_timeout: "{{ ks_wait_kube_teardown_seconds | default (600) }}"
 
-- name: Remove workloads on Docker
-  hosts: docker
+- name: Remove workloads on system sites
+  hosts: system
   ignore_errors: true
-  roles:
-  - rm_docker_workload
-
-- name: Remove workloads on Podman
-  hosts: podman,systemd
-  ignore_errors: true
-  roles:
-  - rm_podman_workload
+  tasks:
+  - name: Remove workloads on Docker
+    ansible.builtin.import_role:
+      role: rm_docker_workload
+    when: ks_workload_platform == 'docker'
+  - name: Remove workloads on Podman
+    ansible.builtin.import_role:
+      role: rm_podman_workload
+    when: ks_workload_platform == 'podman'
 
 - name: Fail playbook if any hosts failed previously
   hosts: all

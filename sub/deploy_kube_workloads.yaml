@@ -20,7 +20,6 @@
     state: present
     definition:
       spec:
-        # TODO: this is not working; investigate
         replicas: "{{ item.kube_replicas | default (1) | int }}"
         selector:
           matchLabels:

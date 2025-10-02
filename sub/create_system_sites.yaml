@@ -1,5 +1,0 @@
----
-
-- name: Setup system site
-  ansible.builtin.import_role:
-    name: setup_system_site
