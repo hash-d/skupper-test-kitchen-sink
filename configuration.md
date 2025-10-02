@@ -31,6 +31,7 @@ These variables can be set individually on the local inventory's `host_vars`, pe
 | `ks_wait_kube_teardown` | `boolean` | `false` | Whether the test should wait for the namespace removal to complete |
 | `ks_wait_kube_teardown_seconds` | `integer` | `600` | How many seconds to wait for the namespace removal |
 | `ks_workload_platform` | `string` | depends | This selects how workloads will be deployed.  Defaults to same as `skupper_platform`, except for `systemd`, where `podman` is used by default.  Change this only if you want your workloads to run in a different container engine |
+| `setup_strategy` | `string` | `link_last` | Selects the initial setup strategy: namespace creation and workload deployments always come first.  Next, the options are resource-site-link (`site_last`), site-resource-link (`link_last`) or site-link-resource (`resource_last`).  Site creation always comes before linking, as there is a direct dependency |
 
 Images
 ------
