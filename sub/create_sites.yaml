@@ -59,3 +59,8 @@
     register: system_results
     environment:
       SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
+  - name: Store site creation status
+    ansible.builtin.set_fact:
+      # ks_site_created is used to prevent reloading namespaces whose site resource has
+      # not yet been created, when using different setup strategies
+      ks_site_created: true

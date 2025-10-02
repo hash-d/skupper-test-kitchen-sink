@@ -25,4 +25,6 @@
       platform: "{{ skupper_platform }}"
     environment:
       SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
-    when: skupper_platform_type == "system"
+    when:
+    - skupper_platform_type == "system"
+    - ks_site_created | default (false)
