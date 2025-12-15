@@ -272,13 +272,14 @@ Host names?
 TODO
 ====
 
-- Split inventory into inv-dot and inv-pdf
+- Split inventory target into inv-dot and inv-pdf
 - Make inv-dot a requirement for inv-pdf, test and verify
   - Storing the whole inventory might give away secrets; the dot file requires no pre-reqs installed (only the inv-pdf target), and can be used as an evidence of the inventory that was used.
 - Generate (save) and print a test report: variables, git describe, etc
 - App and topology README: sample/template local inventories
 - Implement the `prep` target
 - Implement port shift values, to simplifly topology and application development
+  jobaid: `groups['group_name'].index(inventory_hostname)`
 - Create kube children groups; allow local inventories to set hosts on them, adding specific functionality (for example, applications may expose frontend workloads via routes on OpenShift)
 - Change the way sites are prepared to accept links: instead of `site_spec` + `site_resources`, make it a single configuration that works for both kube and non-kube.  Still allow site specs, though
 - Change Makefile to use ansible-navigator, instead of ansible-playbook
@@ -286,3 +287,6 @@ TODO
 - Refactor into a collection?
 - change `container_workloads` from a list to a dictionary, so that their contents can be addressed by other parts of the inventory or playbook
 - create some checklists (and hopefully some way of checking them): always set kubeconfig, stage for skupper.v2.resource, etc...
+- add `ks_reload_handlers` (default true) and `ks_final_system_reload` (default false) to allow setup before start
+- create 'noop' application, which installs no application
+- add local cli operation mode (ie, instead of using skupper.v2, make calls to the cli)
