@@ -60,3 +60,6 @@ inventory: gen_dir inv-list
 
 reload:
 	ansible-playbook $(TEST_FLAGS) reload.yaml
+
+snapshot:
+	ansible-playbook -v $(TEST_FLAGS) snapshot.yaml
