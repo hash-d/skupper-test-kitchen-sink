@@ -15,6 +15,14 @@ container_workloads:
 - name: hello-world-backend
   image: quay.io/skupper/hello-world-backend # TODO externalize
   expose: "{{ backend_host_port }}:{{ backend_container_port }}"
+  # We need to define the host to the empty string; the default is 0.0.0.0.
+  # That fails on ipv6-only.  The empty string makes Uvicorn listen to all
+  # interfaces, both ipv4 and ipv6.
+  #
+  # See https://github.com/Kludex/uvicorn/discussions/1529#discussioncomment-4848949
+  command:
+  - --host
+  - ""
   kube_replicas: 3
   kube_app: backend
 
