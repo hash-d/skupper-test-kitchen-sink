@@ -24,11 +24,13 @@ TEST_FLAGS = \
 	-e test_id=$(TEST_ID) \
 	$(OPTIONS)
 
+SKUPPER_VERSION_FILE ?= inventory/version/rhsi-$(SKUPPER_VERSION).yaml
+
 TEST_INV_FLAGS = \
 	-i inventory/basic \
 	-i inventory/topology/$(TOPO)/ \
 	-i inventory/apps/$(APP)/ \
-	-i inventory/version/rhsi-$(SKUPPER_VERSION).yaml \
+	-i $( SKUPPER_VERSION_FILE ) \
 	-i inventory/local/$(LOCAL) \
 
 test:
