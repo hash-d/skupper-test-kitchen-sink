@@ -30,7 +30,7 @@ TEST_INV_FLAGS = \
 	-i inventory/basic \
 	-i inventory/topology/$(TOPO)/ \
 	-i inventory/apps/$(APP)/ \
-	-i $( SKUPPER_VERSION_FILE ) \
+	-i $(SKUPPER_VERSION_FILE) \
 	-i inventory/local/$(LOCAL) \
 
 test:
