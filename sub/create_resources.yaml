@@ -1,7 +1,7 @@
 ---
 
 - name: Create Skupper resources
-  hosts: all
+  hosts: kube,system
   gather_facts: no
   tasks:
   - debug:

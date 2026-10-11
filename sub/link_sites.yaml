@@ -1,7 +1,7 @@
 ---
 
 - name: Link sites
-  hosts: all
+  hosts: kube,system
   gather_facts: no
   serial: "{{ ks_serial | default (omit) }}"
   tasks:
