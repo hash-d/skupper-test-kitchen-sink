@@ -1,4 +1,4 @@
 ---
 
 skupper_links:
-- hub-0
+- "{{ groups.hubs[0] }}"
