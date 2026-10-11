@@ -1,7 +1,7 @@
 ---
 
 - name: Deploy workloads
-  hosts: all
+  hosts: system,kube
   gather_facts: no
   tasks:
   - include_tasks: deploy_{{ skupper_platform_type }}_workloads.yaml
