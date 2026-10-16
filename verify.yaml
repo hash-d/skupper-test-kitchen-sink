@@ -1,0 +1,42 @@
+---
+
+# TODO: change this to include_task, with one file for system, other for kubernetes
+# This would allow the verifications to run in parallel and some variables to be
+# shared (move retries, delay to a 'vars:' section)
+
+- name: Verify on systems
+  hosts: system
+  gather_facts: no
+  tasks:
+  - debug:
+      var: application_url_checks
+      verbosity: 1
+  - name: Check URI
+    ansible.builtin.uri:
+      url: "{{ item.url }}"
+      return_content: true
+    loop: "{{ application_url_checks | default ([]) }}"
+    register: uri_check_result
+    until: uri_check_result is success
+    retries: "{{ 10 * ( ks_retry_multiplier | default (1) | int ) }}"
+    delay: 6
+  - name: Show response
+    ansible.builtin.debug:
+      var: uri_check_result
+      verbosity: 1
+
+- name: Verify on Kube
+  hosts: kube
+  gather_facts: no
+  tasks:
+  - name: Check URI
+    kubernetes.core.k8s_exec:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      namespace: "{{ inventory_namespace }}"
+      command: "curl -v {{ item.url }}"
+      pod: lanyard
+    loop: "{{ application_url_checks | default ([]) }}"
+    register: uri_check_result
+    until: uri_check_result is success
+    retries: "{{ 10 * ( ks_retry_multiplier | default (1) | int ) }}"
+    delay: 6

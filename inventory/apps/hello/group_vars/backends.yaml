@@ -1,0 +1,45 @@
+---
+
+# When running workloads on Podman or Docker, we may need to
+# set them to different ports, to avoid port clashes.
+#
+# On Kube, however, the ports open on 0.0.0.0 are the ones
+# that can be accessed, and there is no port routing.
+#
+# So, when setting the Connector port, we need to pick one
+# or the other.
+backend_container_port: 8080
+backend_host_port: 8081
+
+container_workloads:
+- name: hello-world-backend
+  image: quay.io/skupper/hello-world-backend # TODO externalize
+  expose: "{{ backend_host_port }}:{{ backend_container_port }}"
+  # We need to define the host to the empty string; the default is 0.0.0.0.
+  # That fails on ipv6-only.  The empty string makes Uvicorn listen to all
+  # interfaces, both ipv4 and ipv6.
+  #
+  # See https://github.com/Kludex/uvicorn/discussions/1529#discussioncomment-4848949
+  command:
+  - --host
+  - ""
+  kube_replicas: 3
+  kube_app: backend
+
+connector_spec:
+  kube:
+    selector: app=backend
+  system:
+    host: localhost
+
+application_resources:
+- apiVersion: skupper.io/v2alpha1
+  kind: Connector
+  metadata:
+    name: backend
+    namespace: "{{ inventory_namespace }}"
+  spec:
+    routingKey: backend
+    port: "{{ backend_container_port if skupper_platform == 'kubernetes' else backend_host_port | int}}"
+    host: "{{ connector_spec[skupper_platform_type].host | default (omit) }}"
+    selector: "{{ connector_spec[skupper_platform_type].selector | default (omit) }}"

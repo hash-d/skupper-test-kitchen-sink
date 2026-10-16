@@ -1,0 +1,6 @@
+---
+
+skupper_platform: docker
+skupper_platform_type: system
+ks_workload_platform: docker
+ks_install_system_controller: true

@@ -1,0 +1,7 @@
+all:
+  vars:
+    cli_image: registry.redhat.io/service-interconnect/skupper-cli-rhel9:2.0.1-1
+    # Let the CLI use whatever router image it sees as appropriate; it's already released
+    # BUT: the cli image is failing to use registry information, so we're forcing it to
+    # use registry-proxy for the router image
+    router_image: registry-proxy.engineering.redhat.com/rh-osbs/service-interconnect-skupper-router-rhel9:3.3.1-1

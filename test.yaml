@@ -1,10 +1,15 @@
 ---
 
+- import_playbook: check.yaml
+
 - import_playbook: setup.yaml
+
+- import_playbook: verify.yaml
 
 - name: Pause for verification
   hosts: localhost
   tasks:
   - ansible.builtin.pause:
+    when: ks_pause is defined
 
 - import_playbook: teardown.yaml

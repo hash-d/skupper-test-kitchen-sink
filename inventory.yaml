@@ -1,0 +1,11 @@
+---
+
+- name: Inventory
+  hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: Generate dot file
+    ansible.builtin.template:
+      dest: generated/inventory.dot
+      src: templates/inventory.dot.j2
+      validate: nop %s

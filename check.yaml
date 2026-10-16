@@ -1,0 +1,16 @@
+---
+
+- name: Check kube environment
+  gather_facts: no
+  hosts: kube
+  tasks:
+  - name: Check cluster is accessible
+    kubernetes.core.k8s_cluster_info:
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+
+- name: Check system sites are accessible
+  gather_facts: no
+  hosts: system
+  tasks:
+  - name: Check host is accessible
+    ansible.builtin.ping:

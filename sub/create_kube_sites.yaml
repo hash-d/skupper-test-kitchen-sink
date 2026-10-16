@@ -1,0 +1,17 @@
+---
+
+- name: Create the site resource
+  skupper.v2.resource:
+    platform: "{{ skupper_platform }}"
+    kubeconfig: "{{ kubeconfig | default (omit) }}"
+    namespace: "{{ inventory_namespace }}"
+    def:
+      apiVersion: skupper.io/v2alpha1
+      kind: Site
+      metadata:
+        name: "{{ inventory_namespace }}"
+        namespace: "{{ inventory_namespace }}"
+        labels:
+          ks.id: "{{ test_id }}"
+          ks.test: "{{ test_name }}"
+      spec: "{{ site_spec | default(omit) }}"

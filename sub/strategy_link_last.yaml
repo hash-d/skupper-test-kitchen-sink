@@ -1,0 +1,11 @@
+---
+
+# - Workloads are created first
+# - Then, sites and resources
+# - Links are created last
+
+- import_playbook: create_kube_namespaces.yaml
+- import_playbook: deploy_workloads.yaml
+- import_playbook: create_sites.yaml
+- import_playbook: create_resources.yaml
+- import_playbook: link_sites.yaml

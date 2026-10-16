@@ -1,0 +1,26 @@
+---
+
+# TODO: improve this.  Perhaps even assert that the skupper version matches expectation
+
+- name: Docker snapshot
+  hosts: docker
+  gather_facts: no
+  tasks:
+  - name: Run docker ps
+    ansible.builtin.command: docker ps
+
+- name: Podman snapshot
+  hosts: podman
+  gather_facts: no
+  tasks:
+  - name: Run podman ps
+    ansible.builtin.command: podman ps
+
+- name: Check skupper-router version
+  hosts: systemd
+  gather_facts: no
+  tasks:
+  - name: Run skrouterd -v
+    ansible.builtin.command: skrouterd -v
+  - name: List skrouterd process, to check start time
+    ansible.builtin.command: ps -fC skrouterd

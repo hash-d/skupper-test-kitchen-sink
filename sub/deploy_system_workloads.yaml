@@ -1,0 +1,11 @@
+---
+
+- name: Deploy docker workloads
+  ansible.builtin.import_role:
+    name: run_docker_workload
+  when: ks_workload_platform == "docker"
+
+- name: Deploy podman workloads
+  ansible.builtin.import_role:
+    name: run_podman_workload
+  when: ks_workload_platform == "podman"

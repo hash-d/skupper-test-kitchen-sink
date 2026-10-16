@@ -1,0 +1,66 @@
+---
+
+- name: Install system controller
+  hosts: system
+  gather_facts: no
+  serial: "{{ ks_serial | default (omit) }}"
+  tasks:
+  - name: Install the System Controller
+    skupper.v2.controller:
+      action: install
+      image: "{{ system_controller_image | default (omit) }}"
+      # This does not use skupper_platform, so you can test creating the sites in
+      # one platform, installing the controller in other
+      platform: "{{ ks_workload_platform }}"
+    when: ks_install_system_controller | default (false)
+
+- name: Create Skupper sites
+  hosts: kube,system
+  gather_facts: no
+  serial: "{{ ks_serial | default (omit) }}"
+  tasks:
+  - name: Create the Site
+    skupper.v2.resource:
+      platform: "{{ skupper_platform }}"
+      kubeconfig: "{{ kubeconfig | default (omit) }}"
+      namespace: "{{ inventory_namespace }}"
+      state: latest
+      def:
+        apiVersion: skupper.io/v2alpha1
+        kind: Site
+        metadata:
+          name: "{{ inventory_namespace }}"
+          # For system sites, spec.metadata.namespace is ignored, so we set it
+          # on the top-level field, only.
+          #namespace: "{{ inventory_namespace }}"
+          labels:
+            ks.id: "{{ test_id }}"
+            ks.test: "{{ test_name }}"
+        spec: "{{ site_spec | default(omit) }}"
+
+- name: Set up system sites
+  hosts: system
+  serial: "{{ ks_serial | default (omit) }}"
+  gather_facts: no
+  tasks:
+  - name: Create the topology resources
+    skupper.v2.resource:
+      namespace: "{{ inventory_namespace }}"
+      platform: "{{ skupper_platform }}"
+      def: "{{ item }}"
+      state: latest
+    loop: "{{ site_resources | default ([]) }}"
+  - name: Setup the site
+    skupper.v2.system:
+      namespace: "{{ inventory_namespace }}"
+      platform: "{{ skupper_platform }}"
+      image: "{{ cli_image }}"
+      action: reload
+    register: system_results
+    environment:
+      SKUPPER_ROUTER_IMAGE: "{{ router_image | default (omit) }}"
+  - name: Store site creation status
+    ansible.builtin.set_fact:
+      # ks_site_created is used to prevent reloading namespaces whose site resource has
+      # not yet been created, when using different setup strategies
+      ks_site_created: true
